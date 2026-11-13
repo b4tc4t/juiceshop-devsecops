@@ -8,7 +8,6 @@ using Jenkins and Docker.
 - Jenkins
 - Docker and Docker Compose
 - Semgrep OSS
-- OWASP Dependency-Check
 - npm audit
 - OWASP ZAP
 - Python
@@ -25,7 +24,6 @@ using Jenkins and Docker.
 | Category | Tool |
 |---|---|
 | SAST | Semgrep OSS |
-| SCA | OWASP Dependency-Check |
 | SCA | npm audit |
 | DAST | OWASP ZAP |
 
