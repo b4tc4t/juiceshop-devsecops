@@ -38,6 +38,36 @@ pipeline {
             }
         }
 
+        stage('SCA - npm audit') {
+            steps {
+                sh '''
+                    REPORT="$WORKSPACE/juice-shop/reports/npm-audit-report.json"
+
+                    set +e
+                    docker run --rm \
+                        -v "$WORKSPACE/juice-shop:/src" \
+                        -w /src \
+                        node:22-bookworm \
+                        npm audit --json > "$REPORT"
+                    AUDIT_EXIT=$?
+                    set -e
+
+                    echo "npm audit exit code: $AUDIT_EXIT"
+
+                    python3 -c '
+import json, sys
+with open(sys.argv[1]) as f:
+    report = json.load(f)
+assert "metadata" in report
+assert "vulnerabilities" in report["metadata"]
+print("npm audit report generated successfully")
+print("Vulnerability summary:",
+      report["metadata"]["vulnerabilities"])
+' "$REPORT"
+                '''
+            }
+        }
+
         stage('SAST - Semgrep') {
             steps {
                 sh '''
@@ -58,7 +88,7 @@ pipeline {
         stage('Archive SAST Report') {
             steps {
                 archiveArtifacts(
-                    artifacts: 'juice-shop/reports/semgrep-report.json',
+                    artifacts: 'juice-shop/reports/*.json',
                     fingerprint: true
                 )
             }
