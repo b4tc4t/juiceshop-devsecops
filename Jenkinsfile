@@ -200,6 +200,32 @@ print("Vulnerability summary:",
                 )
             }
         }
+
+        stage('Security Gate') {
+            steps {
+                sh '''
+                    echo "Evaluating security reports..."
+
+                    if [ -s juice-shop/reports/zap-full-report.json ]; then
+                        python3 security-gate/security_gate.py \
+                            --npm-audit juice-shop/reports/npm-audit-report.json \
+                            --semgrep juice-shop/reports/semgrep-report.json \
+                            --zap-baseline juice-shop/reports/zap-baseline-report.json \
+                            --zap-full juice-shop/reports/zap-full-report.json \
+                            --max-critical 0 \
+                            --max-high 0
+                    else
+                        python3 security-gate/security_gate.py \
+                            --npm-audit juice-shop/reports/npm-audit-report.json \
+                            --semgrep juice-shop/reports/semgrep-report.json \
+                            --zap-baseline juice-shop/reports/zap-baseline-report.json \
+                            --max-critical 0 \
+                            --max-high 0
+                    fi
+                '''
+            }
+        }
+
     }
 
     post {
